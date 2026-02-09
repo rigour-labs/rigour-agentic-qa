@@ -1,0 +1,75 @@
+# Rigour QA — CRUD API Scene
+# Tests a full create-read-update-delete lifecycle
+
+scenes:
+  - title: "User CRUD Lifecycle"
+    description: "Create a user, read it back, update the name, then delete it"
+    priority: high
+    actor:
+      role: admin
+      auth:
+        type: bearer
+        token_env: "ADMIN_TOKEN"
+    steps:
+      - action: "POST /api/users"
+        input:
+          name: "Jane Smith"
+          email: "jane@example.com"
+          role: "recruiter"
+        expect: "201 with created user including ID"
+      - action: "GET /api/users/{id}"
+        expect: "200 with user matching created data"
+      - action: "PATCH /api/users/{id}"
+        input:
+          name: "Jane Doe"
+        expect: "200 with updated name"
+      - action: "DELETE /api/users/{id}"
+        expect: "204 no content"
+      - action: "GET /api/users/{id}"
+        expect: "404 not found"
+    assertions:
+      - type: status_code
+        target: "step_0"
+        expected: 201
+      - type: status_code
+        target: "step_4"
+        expected: 404
+      - type: semantic
+        target: "full_lifecycle"
+        semantic_prompt: "Was the user correctly created, read back with matching data, updated, deleted, and confirmed gone?"
+    edge_cases:
+      - "Create user with duplicate email"
+      - "Update user with invalid role"
+      - "Delete user that doesn't exist"
+      - "Create user with extremely long name (10000 chars)"
+      - "Access user from different organization (cross-tenant)"
+    tags: ["crud", "users", "admin"]
+
+  - title: "Pagination and Filtering"
+    description: "List users endpoint supports pagination, sorting, and filtering"
+    priority: medium
+    actor:
+      role: admin
+      auth:
+        type: bearer
+        token_env: "ADMIN_TOKEN"
+    steps:
+      - action: "GET /api/users?page=1&limit=10&sort=created_at:desc"
+        expect: "200 with paginated response"
+      - action: "GET /api/users?role=recruiter"
+        expect: "200 with only recruiter users"
+      - action: "GET /api/users?search=jane"
+        expect: "200 with users matching search query"
+    assertions:
+      - type: body_schema
+        target: "step_0"
+        expected:
+          type: object
+          required: ["data", "pagination"]
+          properties:
+            pagination:
+              required: ["page", "limit", "total", "totalPages"]
+      - type: semantic
+        target: "step_1"
+        semantic_prompt: "Do all returned users have the role 'recruiter'?"
+    tags: ["crud", "pagination", "filtering"]

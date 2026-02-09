@@ -1,0 +1,79 @@
+# Rigour QA — Scene Definition
+# A scene describes WHAT to test in natural language or structured format.
+# The agentic engine generates, executes, and explores edge cases automatically.
+
+scenes:
+  - title: "Successful Login"
+    description: "User logs in with valid credentials and receives a JWT token"
+    priority: critical
+    actor:
+      role: user
+      auth:
+        type: none  # No auth needed — we're testing the login itself
+    steps:
+      - action: "POST /api/auth/login"
+        input:
+          email: "test@example.com"
+          password: "SecureP@ss123"
+        expect: "200 with access_token in response body"
+      - action: "GET /api/auth/me"
+        expect: "200 with user profile containing email"
+    assertions:
+      - type: status_code
+        target: "step_0"
+        expected: 200
+      - type: body_contains
+        target: "step_0"
+        expected: "access_token"
+      - type: body_schema
+        target: "step_1"
+        expected:
+          type: object
+          required: ["id", "email", "role"]
+    edge_cases:
+      - "What happens with wrong password?"
+      - "What happens with non-existent email?"
+      - "What happens after 5 failed attempts? (rate limiting)"
+      - "What happens with SQL injection in email field?"
+      - "What happens with expired JWT on /me endpoint?"
+    tags: ["auth", "login", "critical-path"]
+
+  - title: "Login Rate Limiting"
+    description: "After 5 failed login attempts, the account should be temporarily locked"
+    priority: high
+    actor:
+      role: attacker
+    steps:
+      - action: "POST /api/auth/login (repeat 6 times)"
+        input:
+          email: "victim@example.com"
+          password: "wrong_password"
+        expect: "First 5 return 401, 6th returns 429"
+    assertions:
+      - type: status_code
+        target: "step_0_attempt_5"
+        expected: 429
+      - type: semantic
+        target: "response_body"
+        semantic_prompt: "Does the error message indicate the account is temporarily locked without revealing whether the email exists?"
+    tags: ["auth", "security", "rate-limiting"]
+
+  - title: "OAuth SSO Login"
+    description: "User authenticates via Google OAuth and gets redirected to dashboard"
+    priority: high
+    actor:
+      role: user
+      persona: "Enterprise user logging in via company SSO"
+    steps:
+      - action: "GET /api/auth/oauth/google"
+        expect: "302 redirect to Google OAuth consent screen"
+      - action: "GET /api/auth/callback?code=mock_auth_code"
+        expect: "302 redirect to /dashboard with session cookie set"
+    assertions:
+      - type: status_code
+        target: "step_0"
+        expected: 302
+      - type: header_contains
+        target: "step_1"
+        expected: "set-cookie"
+    tags: ["auth", "oauth", "sso"]

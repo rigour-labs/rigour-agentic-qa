@@ -1,0 +1,127 @@
+# Example test scenarios for Rigour QA
+
+- title: Create User
+  description: API creates a new user and returns the user ID
+  actor:
+    role: admin
+    persona: Administrator creating users in bulk
+  steps:
+    - action: POST /api/users
+      input:
+        name: John Doe
+        email: john.doe@example.com
+        role: user
+      expect: Returns 201 with user ID
+    - action: GET /api/users/{user_id}
+      expect: User data matches what was created
+  assertions:
+    - type: status_code
+      target: response
+      expected: 201
+    - type: body_contains
+      target: response
+      expected: id
+    - type: body_schema
+      target: response
+      expected: "{ id: string, name: string, email: string }"
+  edge_cases:
+    - Create with empty name
+    - Create with invalid email format
+    - Create with duplicate email
+    - Create with special characters in name
+    - Create with very long name (> 255 chars)
+  tags:
+    - users
+    - critical
+    - api
+  priority: critical
+  metadata:
+    feature: user-management
+    version: 1.0
+
+- title: List Users with Pagination
+  description: API returns paginated list of users
+  actor:
+    role: user
+    persona: Regular user browsing users
+  steps:
+    - action: GET /api/users
+      input:
+        page: 1
+        limit: 10
+      expect: Returns paginated results
+  assertions:
+    - type: status_code
+      target: response
+      expected: 200
+    - type: response_time
+      target: duration
+      expected: 2.0
+      tolerance: 0.2
+  edge_cases:
+    - Pagination with page 0
+    - Pagination with negative limit
+    - Pagination with very large limit (>1000)
+    - Pagination with invalid page parameter
+  tags:
+    - users
+    - pagination
+    - api
+  priority: high
+
+- title: Update User with Invalid Role
+  description: API rejects update with invalid role
+  actor:
+    role: admin
+    auth:
+      type: bearer
+      value: token_xxx
+  steps:
+    - action: PATCH /api/users/123
+      input:
+        role: invalid_role
+      expect: Returns 400 with validation error
+  assertions:
+    - type: status_code
+      target: response
+      expected: 400
+    - type: body_contains
+      target: response
+      expected: "Invalid role"
+    - type: semantic
+      target: response
+      expected: "Error message is clear and actionable"
+      semantic_prompt: "Is this error message helpful for understanding what went wrong?"
+  edge_cases:
+    - Update with null role
+    - Update with empty role
+    - Update with role name in different case
+  tags:
+    - users
+    - validation
+    - api
+  priority: high
+
+- title: Delete User and Verify Removal
+  description: User is deleted and no longer accessible
+  actor:
+    role: admin
+  steps:
+    - action: DELETE /api/users/123
+      expect: Returns 204 No Content
+    - action: GET /api/users/123
+      expect: Returns 404 Not Found
+  assertions:
+    - type: status_code
+      target: response
+      expected: 204
+  edge_cases:
+    - Delete non-existent user
+    - Delete already deleted user
+    - Delete with invalid user ID format
+    - Concurrent delete requests
+  tags:
+    - users
+    - deletion
+    - api
+  priority: high

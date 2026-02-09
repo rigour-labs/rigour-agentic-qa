@@ -1,0 +1,24 @@
+# Rigour QA — Natural Language Scenes
+# Just describe what you want to test. The agent figures out the rest.
+# Each paragraph becomes a separate scene.
+
+Test that a new user can sign up with email and password, receive a
+verification email, click the verification link, and then successfully
+log in. After login they should see an empty dashboard.
+
+Test that an admin can create an interview for a candidate, the candidate
+receives an invitation email with a unique link, clicking the link starts
+a video interview session, and the interviewer can join the same session.
+The interview should have a 60-minute time limit.
+
+Test that the API rate limiter kicks in after 100 requests per minute.
+The 101st request should get a 429 response with a Retry-After header.
+After waiting the specified time, requests should work again.
+
+Test that file upload accepts PDF and DOCX files under 10MB but rejects
+executables, files over 10MB, and files with double extensions like
+resume.pdf.exe. The upload should return a CDN URL for the file.
+
+Test that when a candidate's interview is scored below 30%, the system
+automatically sends a rejection email within 5 minutes but does NOT
+send it if a human reviewer has flagged the interview for manual review.

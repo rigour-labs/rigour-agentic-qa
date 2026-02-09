@@ -1,0 +1,15 @@
+# Rigour QA — Code Owners
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything
+* @rigour-labs/core
+
+# Python SDK
+/packages/sdk-python/ @rigour-labs/sdk-python
+
+# Node.js SDK
+/packages/sdk-node/ @rigour-labs/sdk-node
+
+# Examples and documentation
+/examples/ @rigour-labs/core
+/*.md @rigour-labs/core

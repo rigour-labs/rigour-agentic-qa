@@ -1,0 +1,44 @@
+# Example connection configuration for Rigour QA
+# Copy and modify for your testing environment
+
+# Basic HTTP API configuration
+name: example-api
+type: http
+base_url: https://api.example.com
+timeout: 30000
+
+# Default headers for all requests
+headers:
+  Content-Type: application/json
+  Accept: application/json
+  User-Agent: rigour-qa/0.1.0
+
+# Retry configuration
+retry:
+  max_attempts: 3
+  backoff_ms: 1000
+
+# Authentication configuration
+auth:
+  type: bearer
+  credentials:
+    token: your-api-token-here
+
+# Optional: TLS/SSL configuration
+tls:
+  enabled: true
+  verify: true
+  # cert_path: /path/to/cert.pem
+  # key_path: /path/to/key.pem
+  # ca_path: /path/to/ca.pem
+
+# Optional: Proxy configuration
+# proxy:
+#   url: http://proxy.example.com:8080
+#   username: proxy-user
+#   password: proxy-password
+
+# Additional metadata
+metadata:
+  environment: development
+  region: us-east-1

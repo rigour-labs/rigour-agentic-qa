@@ -1,0 +1,49 @@
+# Gherkin-style test scenarios for Rigour QA
+
+Feature: User Authentication
+  Scenario: Login with valid credentials
+    Given a registered user with email "user@example.com" and password "correct_password"
+    When the user submits login request with valid credentials
+    Then the API returns status code 200
+    And the response contains an access_token field
+    And the token is valid JWT
+
+  Scenario: Login with incorrect password
+    Given a registered user with email "user@example.com"
+    When the user submits login request with incorrect password
+    Then the API returns status code 401
+    And the response contains error message "Invalid credentials"
+
+  Scenario: Login with non-existent email
+    Given no user exists with email "nonexistent@example.com"
+    When the user submits login request for this email
+    Then the API returns status code 401
+    And the response does not leak whether account exists
+
+Feature: User Registration
+  Scenario: Register new user
+    Given no user exists with email "newuser@example.com"
+    When a new user registers with valid email and password
+    Then the API returns status code 201
+    And the response contains the new user ID
+    And the user can immediately log in with provided credentials
+
+  Scenario: Register with duplicate email
+    Given a user already exists with email "existing@example.com"
+    When another user tries to register with the same email
+    Then the API returns status code 409
+    And the response clearly indicates email is already taken
+
+  Scenario: Register with weak password
+    Given valid email "user@example.com"
+    When user tries to register with password that is too short
+    Then the API returns status code 400
+    And the response explains password requirements
+
+Feature: Rate Limiting
+  Scenario: Exceed rate limit
+    Given a user making requests to the API
+    When the user makes more than 100 requests in 60 seconds
+    Then subsequent requests return status code 429
+    And response includes Retry-After header
+    And the user can retry after the specified duration

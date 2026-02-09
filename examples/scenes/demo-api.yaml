@@ -1,0 +1,71 @@
+# Rigour QA — Demo Scenes (works out of the box with JSONPlaceholder)
+# Run: rigour-qa run examples/scenes/demo-api.yaml --connection examples/connection.yaml
+
+scenes:
+  - title: "Get All Users"
+    description: "Verify the GET /users endpoint returns a list of 10 users"
+    priority: high
+    steps:
+      - action: "GET /users"
+        expect: "200 with a list of users"
+    assertions:
+      - type: status_code
+        target: "response"
+        expected: 200
+      - type: body_contains
+        target: "response"
+        expected: "Leanne Graham"
+    edge_cases:
+      - "What happens with invalid query parameters?"
+      - "What happens with limit=0?"
+    tags: ["api", "users", "smoke"]
+
+  - title: "Get Single User"
+    description: "Verify GET /users/1 returns user details for Leanne Graham"
+    priority: high
+    steps:
+      - action: "GET /users/1"
+        expect: "200 with user object"
+    assertions:
+      - type: status_code
+        target: "response"
+        expected: 200
+      - type: body_contains
+        target: "response"
+        expected: "Leanne Graham"
+    tags: ["api", "users"]
+
+  - title: "Create a Post"
+    description: "Verify POST /posts creates a new post and returns it with an id"
+    priority: medium
+    steps:
+      - action: "POST /posts"
+        input:
+          title: "Rigour QA Test Post"
+          body: "This post was created by Rigour QA automated testing"
+          userId: 1
+        expect: "201 with created post including id"
+    assertions:
+      - type: status_code
+        target: "response"
+        expected: 201
+      - type: body_contains
+        target: "response"
+        expected: "Rigour QA Test Post"
+    edge_cases:
+      - "What happens with empty title?"
+      - "What happens with missing userId?"
+      - "What happens with extremely long body text?"
+    tags: ["api", "posts", "crud"]
+
+  - title: "Get Non-Existent User"
+    description: "Verify GET /users/99999 returns empty object (404-like behavior)"
+    priority: medium
+    steps:
+      - action: "GET /users/99999"
+        expect: "404 or empty response"
+    assertions:
+      - type: status_code
+        target: "response"
+        expected: 404
+    tags: ["api", "users", "error-handling"]

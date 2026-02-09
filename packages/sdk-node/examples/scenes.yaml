@@ -1,0 +1,189 @@
+# Example test scenarios for Rigour QA
+
+# API Authentication Test
+- title: User Login with Valid Credentials
+  description: |
+    Test that a user can log in with valid credentials and receives
+    a session token with a 200 status code.
+  actor:
+    role: user
+    persona: A regular registered user
+  assertions:
+    - type: status_code
+      target: response
+      expected: 200
+    - type: body_contains
+      target: response
+      expected: token
+    - type: response_time
+      target: response
+      expected: 1000
+      tolerance: 0.2
+  edge_cases:
+    - Test with invalid password
+    - Test with non-existent user email
+    - Test with SQL injection in password
+    - Test with very long email address
+  tags:
+    - authentication
+    - critical-path
+  priority: critical
+
+# API Data Retrieval Test
+- title: Fetch User Profile Data
+  description: |
+    Test that authenticated users can retrieve their profile data
+    with correct schema and all required fields.
+  actor:
+    role: user
+    auth:
+      type: bearer
+      value: valid-token-here
+  assertions:
+    - type: status_code
+      target: response
+      expected: 200
+    - type: body_schema
+      target: response
+      expected:
+        id: string
+        email: string
+        name: string
+        created_at: string
+        preferences: object
+  edge_cases:
+    - Test with expired token
+    - Test with malformed authorization header
+    - Test with rate limiting (1000+ requests)
+  tags:
+    - api
+    - user-data
+  priority: high
+
+# API Error Handling Test
+- title: Handle 404 Not Found
+  description: |
+    Test that API properly returns 404 when resource doesn't exist
+    with appropriate error message.
+  assertions:
+    - type: status_code
+      target: response
+      expected: 404
+    - type: body_contains
+      target: response
+      expected: not found
+  edge_cases:
+    - Test with invalid resource IDs
+    - Test with negative ID values
+    - Test with extremely large ID values
+  tags:
+    - error-handling
+    - api
+  priority: medium
+
+# Concurrent Operations Test
+- title: Concurrent User Updates
+  description: |
+    Test that concurrent updates to the same resource are handled
+    correctly with proper locking/versioning.
+  assertions:
+    - type: status_code
+      target: response
+      expected: 200
+    - type: custom
+      target: response
+      expected: version_updated
+  edge_cases:
+    - Two simultaneous updates to same field
+    - Three concurrent requests to different fields
+    - Update during in-progress transaction
+  tags:
+    - concurrency
+    - data-integrity
+  priority: high
+
+# Rate Limiting Test
+- title: API Rate Limiting
+  description: |
+    Test that API enforces rate limits correctly and returns
+    appropriate headers and status codes.
+  assertions:
+    - type: header_contains
+      target: response
+      expected: X-RateLimit-Remaining
+    - type: status_code
+      target: response
+      expected: 429  # After limit exceeded
+  edge_cases:
+    - Test limit reset timing
+    - Test with burst traffic
+    - Test with different user accounts
+  tags:
+    - rate-limiting
+    - performance
+  priority: medium
+
+# Data Validation Test
+- title: Input Validation and Sanitization
+  description: |
+    Test that API properly validates and sanitizes user inputs
+    to prevent security vulnerabilities.
+  assertions:
+    - type: status_code
+      target: response
+      expected: 400  # Bad Request
+    - type: body_contains
+      target: response
+      expected: invalid
+  edge_cases:
+    - SQL injection attempt
+    - XSS payload injection
+    - Command injection
+    - Path traversal attempt
+    - Oversized payload (>100MB)
+  tags:
+    - security
+    - validation
+    - critical
+  priority: critical
+
+# State Transition Test
+- title: Order State Transitions
+  description: |
+    Test valid and invalid state transitions for order workflow
+    (pending -> processing -> shipped -> delivered).
+  assertions:
+    - type: status_code
+      target: response
+      expected: 200
+    - type: body_contains
+      target: response
+      expected: shipped
+  edge_cases:
+    - Skip required states (pending -> delivered)
+    - Transition to invalid state
+    - Multiple concurrent state changes
+    - Rollback after partial completion
+  tags:
+    - workflow
+    - state-management
+  priority: high
+
+# Performance Test
+- title: API Response Time SLA
+  description: |
+    Test that API endpoints meet performance SLA of under 500ms
+    for 95th percentile response times.
+  assertions:
+    - type: response_time
+      target: response
+      expected: 500
+      tolerance: 0.1
+  edge_cases:
+    - Test with full database (millions of records)
+    - Test during peak traffic hours
+    - Test with slow network connection
+  tags:
+    - performance
+    - sla
+  priority: medium

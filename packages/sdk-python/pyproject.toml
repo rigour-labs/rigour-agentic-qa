@@ -1,0 +1,72 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rigour-qa"
+version = "0.1.0"
+description = "Agentic QA SDK for autonomous test generation and execution"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Rigour Labs", email = "contact@rigourlabs.com" }
+]
+keywords = ["testing", "qa", "agentic", "ai", "autonomous"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "httpx>=0.25.0",
+    "pydantic>=2.0",
+    "anthropic>=0.7.0",
+    "pytest>=7.4.0",
+    "rich>=13.0.0",
+    "typer>=0.9.0",
+    "pyyaml>=6.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+browser = ["playwright>=1.40.0"]
+reporting = ["allure-pytest>=2.13.0", "jinja2>=3.1.0"]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.5.0",
+    "pre-commit>=3.4.0",
+]
+
+[project.scripts]
+rigour-qa = "rigour_qa.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["rigour_qa*"]
+
+[tool.setuptools.package-data]
+rigour_qa = ["py.typed"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+select = ["E", "F", "W"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false

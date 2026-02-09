@@ -1,0 +1,30 @@
+# Rigour QA — Connection Configuration
+# Configure the target system your scenes will test against.
+# Use `rigour-qa init` to generate a starter config.
+
+# === Demo connection (works out of the box) ===
+base_url: "https://jsonplaceholder.typicode.com"
+timeout: 30
+headers:
+  X-Request-Source: "rigour-qa"
+
+# === Examples for authenticated APIs ===
+#
+# Bearer token auth:
+#   base_url: "https://api.example.com"
+#   auth_type: "bearer"
+#   auth_token: "your-jwt-token-here"
+#   timeout: 30
+#
+# API key auth:
+#   base_url: "https://api.example.com"
+#   auth_type: "api_key"
+#   auth_token: "your-api-key-here"
+#   timeout: 15
+#
+# Basic auth:
+#   base_url: "https://api.example.com"
+#   auth_type: "basic"
+#   username: "admin"
+#   password: "secret"
+#   timeout: 30

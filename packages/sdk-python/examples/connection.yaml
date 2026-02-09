@@ -1,0 +1,27 @@
+# Connection configuration for target system
+
+base_url: https://api.example.com
+
+# Authentication
+auth_type: bearer  # Options: bearer, basic, api_key, oauth
+auth_token: YOUR_API_TOKEN_HERE
+
+# HTTP Configuration
+headers:
+  User-Agent: RigourQA/0.1.0
+  Accept: application/json
+  Content-Type: application/json
+
+timeout: 30
+verify_ssl: true
+
+# Optional: Database connection for DB assertions
+# db_url: postgresql://user:password@localhost:5432/testdb
+
+# Optional: HTTP Proxy
+# proxy: http://proxy.example.com:8080
+
+# Extra metadata
+metadata:
+  environment: staging
+  region: us-east-1
